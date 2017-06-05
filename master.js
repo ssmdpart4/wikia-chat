@@ -50,7 +50,7 @@
 							this.color = config.color;
 							this.palette = config.palette;
 						}
-						this.create = function(callback){
+						this.create = function(){
 							var $colorbox = this.element,
 								that = this;
 							$colorbox.html(function(){
@@ -59,29 +59,58 @@
 								$color_module.html([
 									$('<div class="colorbox-section left" />')
 										.html([
-											$('<div class="colorbox-color color large" />')
+											$('<div class="colorbox-color color large" id="color-large" />')
+												.css('background-color', that.color)
 										]),
 									$('<div class="colorbox-section right" />')
 										.html([
-											$('<div class="colorbox-palette-wrapper palette-wrapper" />')
+											$('<div class="colorbox-palette-wrapper palette-wrapper palette" id="colorbox-palette" />')
 												.html(
 													Array.prototype.map.call(that.palette, function(row, index){
 														var $palette_row = $('<ul class="palette-row row" />');
+														$palette_row.addClass('row-' + index);
 														$palette_row.html(
 															Array.prototype.map.call(row, function(_color, i){
 																var $color = $('<li class="palette-color color" />');
 																$color.attr('data-color', _color);
+																$color.addClass('color-' + index + '-' + i);
 																$color.css('background-color', _color);
 																$color.on('click', function(event){
-																	
+																	var $color_large = $('#color-large'),
+																		color_value = $(event.target).attr('data-color');
+																	$('.palette-color.selected').removeClass('selected');
+																	$(event.target).addClass('selected')
+																	$color_large.css('background-color', color_value);
+																});
+																$color.addClass(function(){
+																	if ($(this).attr('data-color') == that.color){
+																		return 'selected';
+																	}
 																});
 																return $color;
 															})
 														}
 													})
-												)
+												),
+											$('<div class="colorbox-input" id="colorbox-input" />')
+												.html([
+													$('<label for="color-input" class="colorbox-input-label" />')
+														.html('Custom Color: '),
+													$('<input type="text" id="color-input" placeholder="Enter hex here..." />')
+														.on('change keypress', function(e){
+															var _color = $(e.target).val();
+															if (/#([0-9a-f]{3}|[0-9a-f]{6})/.test(_color)){
+																var $target = $('#color-large");
+																$target.css('background-color', _color);
+																$target.attr('data-color', _color);
+															} else {
+																throw new ReferenceError('The value must be a hex triplet.');
+															}
+														})
+												])
 										])
 								]);
+								return $color_module.hide();
 							});
 						};
 						return this;
