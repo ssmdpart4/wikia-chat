@@ -115,6 +115,7 @@
 								$color_module.hide();
 								return [$color, $color_module];
 							});
+							return $colorbox;
 						};
 						return this;
 					case 'combobox':
