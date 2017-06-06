@@ -128,7 +128,7 @@
 													var $_colorbox = $('#' + that.id),
 														$selected = $_colorbox.find('.selected');
 													$_colorbox.removeClass('active');
-													$_colorbox.find('> .color').css('background-color', $selected.attr('data-color');
+													$_colorbox.find('> .color').css('background-color', $selected.attr('data-color'));
 													$_colorbox.find('.color-module').hide();
 												};
 												return button.create();
@@ -146,7 +146,7 @@
 						this.limit = Infinity;
 						if (typeof config != 'undefined'){
 							this.items = config.items || [];
-							this.grouped = (typeof config.items == 'object' && config.items instanceof Object);
+							this.grouped = !(config.items instanceof Object);
 							this.limit = config.limit || Infinity;
 						}
 						this.create = function(){
@@ -156,7 +156,9 @@
 							$combobox.html(function(){
 								var $comboinput = $('<input type="text" class="combobox-input" />'),
 									$drop = $('<span class="combobox-drop combobox-arrow" />'),
-									$combolist = $('<div class="combobox-list" />');
+									$combolist = $('<div class="combobox-list" />'),
+									$combowrapper = $('<div class="combobox-input-wrapper" />');
+								$combowrapper.html([$comboinput, $drop]);
 								$combolist.html(function(){
 									var $html = null;
 									if (that.grouped){
@@ -172,22 +174,54 @@
 														Array.prototype.map.call(_items, function(item, i){
 															var $item = $('<li class="combobox-item combobox-list-item" />');
 															$item.html(
-																$('<a href="#" data-target="#' + that.id + ' .combobox-input" class="combobox-item" /')
-														});
+																$('<a href="#" data-target="#' + that.id + ' .combobox-input" class="combobox-item" />')
+																	.html(name)
+																	.on('click', function(event){
+																		event.preventDefault();
+																		var input = $(event.target).attr('data-target'),
+																			$target = $(input);
+																		$target.val($(event.target).text());
+																	})
+															);
+															return $item;
+														})
 													)
 											]);
 											return $group;
 										});
 									} else {
+										$html = $('<ul class="combobox-list no-group" />');
+										$html.html(
+											Array.prototype.map.call(that.items, function(item, index){
+												var $item = $('<li class="combobox-item combobox-list-item" />');
+												$item.html(
+													$('<a href="#" data-target="#' + that.id + ' .combobox-input" class="combobox-item-link" />')
+														.on('click', function(event){
+															event.preventDefault();
+															var input = $(event.target).attr('data-target'),
+																$target = $(input);
+															$target.val($(event.target).text());
+														})
+												);
+												return $item;
+											})
+										);
 									}
+									return $html;
+								});
+								return [$combowrapper, $combolist];
 							});
 							return $combobox;
 						};
 						return this;
 					case 'list':
+						return;
 					case 'input':
+						return;
 					case 'button':
+						return;
 					case 'tooltip':
+						return;
 					default:
 						return;
 				}
