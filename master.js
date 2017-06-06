@@ -28,7 +28,7 @@
 		 **/
 		ui: function(type, id, config){
 			// This variable represents the valid types
-			var canonical_types = ['colorbox', 'combobox', 'list', 'input', 'button'];
+			var canonical_types = ['colorbox', 'combobox', 'list', 'input', 'button', 'tooltip'];
 			if (canonical_types.indexOf(type) === -1) {
 				throw new ReferenceError('The type that you have chosen is not valid. The valid types are ' + canonical_types.join(', ') + '.');
 			}
@@ -48,15 +48,24 @@
 								['#00001a', '#00002d', '#00004e', '#00006a', '#000080', '#0000af', '#0000c4', '#0000ff']
 							];
 						if (typeof config != 'undefined') {
-							this.color = config.color;
-							this.palette = config.palette;
+							this.color = config.color || '#000000';
+							this.palette = config.palette || [
+								['#000000', '#1a1a1a', '#2a2a2a', '#3f3f3f', '#5d5d5d', '#808080', '#adadad', '#ffffff'],
+								['#1a0000', '#2d0000', '#4e0000', '#6a0000', '#800000', '#af0000', '#c40000', '#ff0000'],
+								['#001a00', '#002d00', '#004e00', '#006a00', '#008000', '#00af00', '#00c400', '#00ff00'],
+								['#00001a', '#00002d', '#00004e', '#00006a', '#000080', '#0000af', '#0000c4', '#0000ff']
+							];
 						}
 						this.create = function(){
 							var $colorbox = this.element,
-								that = this;
+							    that = this;
+							$colorbox.attr('id', this.id);
 							$colorbox.html(function(){
 								var $color = $('<div class="colorbox-color color" />'),
 									$color_module = $('<section class="colorbox-module color-module" />');
+								$color.css('background-color', that.color).on('click', function(){
+									$('#' + that.id).show();
+								});
 								$color_module.html([
 									$('<div class="colorbox-section left" />')
 										.html([
@@ -110,7 +119,20 @@
 														}
 													})
 												])
-											])
+											]),
+										$('<div class="colorbox-submit" id="colorbox-submit" />')
+											.html(function(){
+												var UI = that.constructor,
+													button = new UI('button', 'colorbox-submit-button');
+												button.action = function(event){
+													var $_colorbox = $('#' + that.id),
+														$selected = $_colorbox.find('.selected');
+													$_colorbox.removeClass('active');
+													$_colorbox.find('> .color').css('background-color', $selected.attr('data-color');
+													$_colorbox.find('.color-module').hide();
+												};
+												return button.create();
+											})
 										]);
 								$color_module.hide();
 								return [$color, $color_module];
@@ -119,9 +141,53 @@
 						};
 						return this;
 					case 'combobox':
+						this.items = [];
+						this.element = $('<nav class="chat-ui combobox" />');
+						this.limit = Infinity;
+						if (typeof config != 'undefined'){
+							this.items = config.items || [];
+							this.grouped = (typeof config.items == 'object' && config.items instanceof Object);
+							this.limit = config.limit || Infinity;
+						}
+						this.create = function(){
+							var that = this,
+								$combobox = this.element;
+							$combobox.attr('id', this.id);
+							$combobox.html(function(){
+								var $comboinput = $('<input type="text" class="combobox-input" />'),
+									$drop = $('<span class="combobox-drop combobox-arrow" />'),
+									$combolist = $('<div class="combobox-list" />');
+								$combolist.html(function(){
+									var $html = null;
+									if (that.grouped){
+										$html = Object.keys(that.items).map(function(name, index){
+											var _class = 'combobox-group-' + index,
+												_items = that.items[name],
+												$group = $('<section class="combobox-group ' + _class + '" />');
+											$group.html([
+												$('<h3 class="combobox-group-heading" />')
+													.html(name),
+												$('<ul class="combobox-list combobox-group-list" />')
+													.html(
+														Array.prototype.map.call(_items, function(item, i){
+															var $item = $('<li class="combobox-item combobox-list-item" />');
+															$item.html(
+																$('<a href="#" data-target="#' + that.id + ' .combobox-input" class="combobox-item" /')
+														});
+													)
+											]);
+											return $group;
+										});
+									} else {
+									}
+							});
+							return $combobox;
+						};
+						return this;
 					case 'list':
 					case 'input':
 					case 'button':
+					case 'tooltip':
 					default:
 						return;
 				}
