@@ -18,6 +18,16 @@
          * default. Will only when the toolbar is collapsible.
          **/
         collapsed: false,
+		/**
+		 * [Object] toolbar.data
+		 * This object contains the data needed to create the UI
+		 **/
+		data: {
+			groups: 'chatmoderator discussions-moderator sysop bureaucrat bot vstf helper staff'.split(/\s+/),
+			users: mainRoom.model.users.map(function(child){ return child.attributes.name; }).sort(),
+			self: mw.config.get('wgUserName', wgUserName),
+			host: mw.config.get('wgServer', wgServer).replace(/http(?:s|):\/\/(.*)\.wikia\.com/, '$1')
+		},
         /**
          * [Function] toolbar.ui
          * This function creates the user interface for the toolbar.
@@ -28,7 +38,7 @@
          **/
         ui: function(type, id, config) {
             // This variable represents the valid types
-            var canonical_types = ['colorbox', 'combobox', 'list', 'input', 'button', 'tooltip'];
+            var canonical_types = ['colorbox', 'combobox', 'list', 'input', 'button', 'switch', 'tooltip'];
             if (canonical_types.indexOf(type) === -1){
                 throw new ReferenceError('The type that you have chosen is not valid. The valid types are ' + canonical_types.join(', ') + '.');
             }
@@ -48,7 +58,7 @@
                             ['#001a00', '#002d00', '#004e00', '#006a00', '#008000', '#00af00', '#00c400', '#00ff00'],
                             ['#00001a', '#00002d', '#00004e', '#00006a', '#000080', '#0000af', '#0000c4', '#0000ff']
                         ];
-                        if(typeof config != 'undefined') {
+                        if (typeof config != 'undefined') {
                             this.color = config.color || '#000000';
                             this.palette = config.palette || [
                                 ['#000000', '#1a1a1a', '#2a2a2a', '#3f3f3f', '#5d5d5d', '#808080', '#adadad', '#ffffff'],
@@ -361,6 +371,8 @@
 							}
 						}
                         return this;
+					case 'switch':
+						return this;
                     default:
                         return;
                 }
