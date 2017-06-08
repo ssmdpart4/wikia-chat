@@ -22,12 +22,12 @@
 		 * [Object] toolbar.data
 		 * This object contains the data needed to create the UI
 		 **/
-		data: {
+		/*data: {
 			groups: 'chatmoderator discussions-moderator sysop bureaucrat bot vstf helper staff'.split(/\s+/),
 			users: mainRoom.model.users.map(function(child){ return child.attributes.name; }).sort(),
 			self: mw.config.get('wgUserName', wgUserName),
 			host: mw.config.get('wgServer', wgServer).replace(/http(?:s|):\/\/(.*)\.wikia\.com/, '$1')
-		},
+		},*/
         /**
          * [Function] toolbar.ui
          * This function creates the user interface for the toolbar.
@@ -127,7 +127,11 @@
                                                     var $target = $('#color-large');
                                                     $target.css('background-color', _color);
                                                     $target.attr('data-color', _color);
-                                                } else {
+                                                } else if (/([0-9a-f]{3}|[0-9a-f]{6})/.test(_color)){
+						    var $target = $('#color-large');
+                                                    $target.css('background-color', '#' + _color);
+                                                    $target.attr('data-color', '#' + _color);
+						} else {
                                                     throw new ReferenceError('The value must be a hex triplet.');
                                                 }
                                             })
@@ -199,11 +203,11 @@
                                     $combowrapper = $('<div class="combobox-input-wrapper" />');
                                 $comboinput.attr('placeholder', that.placeholder);
                                 $drop.on('click', function(_e) {
-                                    if($('.combobox-list-wrapper').length > 0) {
-                                        if($('.combobox-list-wrapper').is(':hidden')) {
-                                            $('.combobox-list-wrapper').slideDown(500);
+                                    if($(_e.target).parents().next('.combobox-list-wrapper').length > 0) {
+                                        if($(_e.target).parents().next('.combobox-list-wrapper').is(':hidden')) {
+                                            $(_e.target).parents().next('.combobox-list-wrapper').slideDown(500);
                                         } else {
-                                            $('.combobox-list-wrapper').slideUp(500);
+                                            $(_e.target).parents().next('.combobox-list-wrapper').slideUp(500);
                                         }
                                     }
                                 });
@@ -230,7 +234,7 @@
                                                                 event.preventDefault();
                                                                 var input = $(event.target).attr('data-target'),
                                                                     $target = $(input);
-																$('.combobox-list-wrapper').slideUp(500);
+																$(event.target).parents('.combobox-list-wrapper').slideUp(500);
                                                                 $target.val($(event.target).text());
                                                             })
                                                         );
@@ -253,6 +257,7 @@
                                                         var input = $(event.target).attr('data-target'),
                                                             $target = $(input);
                                                         $target.val($(event.target).text());
+                                                      $(event.target).parents('.combobox-list-wrapper').slideUp(500);
                                                     })
                                                 );
                                                 return $item;
@@ -280,9 +285,38 @@
                     case 'list':
 						this.items = [];
 						this.row_limit = 2;
+            this.limit = this.row_limit;
+						this.multiple = true;
+						this.element = $('<nav class="chat-ui dynamic-list-wrapper dynamic-list" />');
 						if (typeof config !== 'undefined'){
 							this.items = config.items || [];
 							this.row_limit = config.row_limit || 2;
+              this.limit = this.row_limit;
+							this.multiple = config.multiple || true;
+						}
+						
+						this.create = function(){
+							var list = '<ul class="dynamic-list-section">',
+								$list = this.element,
+								that = this;
+			$list.attr('id', this.id);			
+      Array.prototype.forEach.call(this.items, function(item, index){
+								if (index % that.limit === 0){
+									list += '</ul><ul class="dynamic-list-section list-section">';
+									list += '<li class="dynamic-list-item list-item item">';
+									list += '<label class="dynamic-list-label dynamic-list-content" for="' + that.id + '-item-' + index + '">' + item + '</label>';
+									list += '<input type="' + (that.multiple ? 'checkbox' : 'radio') + '" name="' + that.id + '" id="' + that.id + '-item-' + index + '" />';
+									list += '</li>';
+								} else {
+									list += '<li class="dynamic-list-item list-item item">';
+									list += '<label class="dynamic-list-label dynamic-list-content" for="' + that.id + '-item-' + index + '">' + item + '</label>';
+									list += '<input type="' + (that.multiple ? 'checkbox' : 'radio') + '" name="' + that.id + '" id="' + that.id + '-item-' + index + '" />';
+									list += '</li>';
+								}
+							});
+							list += '</ul>';
+							$list.html(list);
+							return $list;
 						}
                         return this;
                     case 'input':
