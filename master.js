@@ -1,23 +1,33 @@
 ;(function(mw, $, mainRoom, toolbar) {
-	/**
+    /**
      * [Object] toolbar
      * This object represents the configurations
      * used on the toolbar that will be created.
      **/
 
 	toolbar = $.extend(toolbar, {
-		/**
+	/**
          * [Boolean] toolbar.collapsible
          * This value determines whether the toolbar is collapsible.
          * @default false
          **/
 		collapsible: false,
-		/**
+	/**
          * [Boolean] toolbar.collapsed
          * This value determines whether the toolbar is collapsed by
          * default. Will only when the toolbar is collapsible.
          **/
 		collapsed: false,
+	/**
+	 * [Object] toolbar.links
+	 * This object creates the layout for the toolbar
+	 **/
+		links: {
+			'': {}
+		},
+	/**
+	 * [Function] toolbar.showGlobalModule
+	 * This function creates a global module for 
 		/**
 		 * [Object] toolbar.data
 		 * This object contains the data needed to create the UI
