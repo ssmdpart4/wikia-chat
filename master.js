@@ -24,13 +24,74 @@
 		 * This function allows the toolbar to collapse (if it is collapsible)
 		 **/
 		collapse: function(){
+			var $main = $('section#WikiaPage'),
+				$toolbar = $('#ChatToolbar');
+			$toolbar.animate({
+				'bottom': '-40px'
+			}, 500);
+			$main.animate({
+				'bottom': 0
+			}, 500);
 		},
 		/**
 		 * [Object] toolbar.links
 		 * This object creates the layout for the toolbar
 		 **/
 		links: {
-			'': {}
+			'Customize': {
+				id: 'toolbar-customize',
+				handler: function(event){
+					var $item = $(event.target).parent('#toolbar-customize');
+					if (!$('#CustomizeModule').exists()){
+						toolbar.createGlobalModule(function(){
+							var $gm_html = [],
+								$header = ;
+							return $gm_html;
+						}, $item, 'CustomizeModule');
+					} else {
+						var $gm = $('#CustomizeModule'),
+							height = null;
+						if ($gm.is(':hidden')){
+							height = $gm.css({
+								'display': 'block'
+							}).height();
+							
+							$gm.css({
+								'overflow': 'hidden',
+								'top': '-100%',
+								'height': 0
+							}).animate({
+								'top': '100%',
+								'height': height,
+							}, 200, function(){
+								$(this).css({
+									'display': '',
+									'overflow': '',
+									'height': '',
+									'top': ''
+								});
+							});
+						} else {
+							height = $gm.height();
+							
+							$gm.css({
+								'overflow': 'hidden',
+								'top': '100%',
+								'height': height
+							}).animate({
+								'top': '-100%',
+								'height': 0
+							}, 200, function(){
+								$(this).css({
+									'display': 'none',
+									'top': '',
+									'height': '',
+									'overflow': ''
+							});
+						}
+					}
+				}
+			}
 		},
 		/**
 		 * [Function] toolbar.showGlobalModule
@@ -61,7 +122,7 @@
 		 **/
 		ui: function(type, id, config) {
 			// This variable represents the valid types
-			var canonical_types = ['colorbox', 'combobox', 'list', 'input', 'button', 'switch', 'tooltip'];
+			const canonical_types = ['colorbox', 'combobox', 'list', 'input', 'button', 'switch', 'tooltip'];
 			if (canonical_types.indexOf(type) === -1) {
 				throw new ReferenceError('The type that you have chosen is not valid. The valid types are ' + canonical_types.join(', ') + '.');
 			}
