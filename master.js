@@ -16,6 +16,7 @@
          * [Boolean] toolbar.collapsed
          * This value determines whether the toolbar is collapsed by
          * default. Will only when the toolbar is collapsible.
+	 * @default false
          **/
 		collapsed: false,
 	/**
@@ -27,7 +28,17 @@
 		},
 	/**
 	 * [Function] toolbar.showGlobalModule
-	 * This function creates a global module for 
+	 * This function creates a global module for the toolbar
+	 * @params
+	 * - html: represents the HTML that will go on the global module
+	 **/
+		createGlobalModule: function(html, parent, id){
+			var $gm = $('<section class="global-module subnav" />');
+			if (typeof id !== undefined)
+				$gm.attr('id', id);
+			$gm.html(html);
+			parent.append($gm);
+		},
 		/**
 		 * [Object] toolbar.data
 		 * This object contains the data needed to create the UI
@@ -57,8 +68,7 @@
 				// Universal properties
 				this.type = type;
 				this.id = id;
-				this.data = {
-				}; // Scrapped. Kept for compatibility purposes.
+				this.data = {}; // Scrapped. Kept for compatibility and storage purposes.
 				switch (type) {
 					case 'colorbox':
 						this.color = '#000000';
@@ -328,7 +338,23 @@
 							list += '</ul>';
 							$list.html(list);
 							return $list;
-						}
+						};
+						
+						this.getValue = function(target){
+							var value = null;
+							if (this.multiple){
+								value = [];
+								if (typeof target !== undefined){
+									target.each(function(index){
+										var $t = $(this);
+										if ($t.parents('.dynamic-list-item').hasClass('selected')){
+											value[value.length] = $t.text();
+										}
+									});
+								}
+							} else {}
+							return value;
+						};
 						return this;
 					case 'input':
 						this.placeholder = '';
