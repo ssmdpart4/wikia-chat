@@ -20,6 +20,12 @@
 		 **/
 		collapsed: false,
 		/**
+		 * [Function] toolbar.collapse
+		 * This function allows the toolbar to collapse (if it is collapsible)
+		 **/
+		collapse: function(){
+		},
+		/**
 		 * [Object] toolbar.links
 		 * This object creates the layout for the toolbar
 		 **/
@@ -41,14 +47,10 @@
 		},
 		/**
 		 * [Object] toolbar.data
-		 * This object contains the data needed to create the UI
+		 * This object contains the data that will be stored
 		 **/
-		/*data: {
-			groups: 'chatmoderator discussions-moderator sysop bureaucrat bot vstf helper staff'.split(/\s+/),
-			users: mainRoom.model.users.map(function(child){ return child.attributes.name; }).sort(),
-			self: mw.config.get('wgUserName', wgUserName),
-			host: mw.config.get('wgServer', wgServer).replace(/http(?:s|):\/\/(.*)\.wikia\.com/, '$1')
-		},*/
+		data: {
+		},
 		/**
 		 * [Function] toolbar.ui
 		 * This function creates the user interface for the toolbar.
