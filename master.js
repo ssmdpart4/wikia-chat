@@ -34,10 +34,24 @@
 			}, 500);
 		},
 		/**
-		 * [Object] toolbar.links
+		 * [Function] toolbar.expand
+		 * This function allows the toolbar to expand (if it is collapsible)
+		 **/
+		expand: function(){
+			var $main = $('section#WikiaPage'),
+				$toolbar = $('#ChatToolbar');
+			$toolbar.animate({
+				'bottom': 0
+			}, 500);
+			$main.animate({
+				'bottom': '40px'
+			}, 500);
+		},
+		/**
+		 * [Object] toolbar.items
 		 * This object creates the layout for the toolbar
 		 **/
-		links: {
+		items: $.extend(toolbar.items, {
 			'Customize': {
 				id: 'toolbar-customize',
 				handler: function(event){
@@ -45,7 +59,92 @@
 					if (!$('#CustomizeModule').exists()){
 						toolbar.createGlobalModule(function(){
 							var $gm_html = [],
-								$header = ;
+							    $header = $('<h2 class="global-module-heading" />'),
+							    $content = $('<div class="global-module-content" />');
+							$header.html($(event.target).text());
+							$content.html(function(){
+								var $fonts = $('<section class="global-module-section gm-section" id="chat-fonts" />'),
+									$bg_color = $('<section class="global-module-section gm-section" id="chat-bgcolor" />'),
+									$fg_color = $('<section class="global-module-section gm-section" id="text-color" />'),
+									$user_color = $('<section class="global-module-section gm-section" id="user-color" />'),
+									$mod_color = $('<section class="global-module-section gm-section" id="mod-color" />'),
+									$self_color = $('<section class="global-module-section gm-section" id="self-color" />'),
+									data = {
+										font: '',
+										background: '',
+										text: '',
+										user: '',
+										mod: '',
+										self: ''
+									};
+								
+								var _fonts = {
+										'Sans Serif': ['Helvetica', 'Segoe UI', 'Comic Sans', 'Impact', 'Lucida Sans', 'Arial', 'Trebuchet MS', 'Verdana', 'Franklin Gothic', 'Agency FB', 'Century Gothic', 'Gill Sans MT'],
+										'Serif': ['Book Antiqua', 'Baskerville', 'Calisto MT', 'Garamond', 'Georgia', 'Palatino Linotype', 'Times New Roman'],
+										'Monospaced': ['Fixedsys', 'Consolas', 'Courier', 'Lucida Console'],
+										'Script': ['Mistral', 'Brush Script', 'Monotype Corsiva', 'Script MT Bold', 'Old English Text MT', 'Lucida Handwriting'],
+										'Display': ['Broadway', 'Algerian', 'Cooper Black', 'Stencil', 'Balloon']
+									},
+									fonts = new toolbar.ui('combobox', 'fonts-box', {
+										items: _fonts
+									}),
+									background = new toolbar.ui('colorbox', 'bg-select'),
+									text = new toolbar.ui('colorbox', 'text-color-select'),
+									user = new toolbar.ui('colorbox', 'user-color-select'),
+									mod = new toolbar.ui('colorbox', 'mod-color-select'),
+									self_post = new toolbar.ui('colorbox', 'self-color-select');
+								$fonts.html([
+									$('<h3 class="global-module-section-heading gm-section-heading" />')
+										.html('Font: '),
+									$('<div class="global-module-section-content gm-section-content" />')
+										.html(function(){
+											return fonts.create();
+										})
+								]);
+								$bg_color.html([
+									$('<h3 class="global-module-section-heading gm-section-heading" />')
+										.html('Background Color: '),
+									$('<div class="global-module-section-content gm-section-content" />')
+										.html(function(){
+											return background.create();
+										})
+								]);
+								$fg_color.html([
+									$('<h3 class="global-module-section-heading gm-section-heading" />')
+										.html('Text Color: '),
+									$('<div class="global-module-section-content gm-section-content" />')
+										.html(function(){
+											return text.create();
+										})
+								]);
+								$user_color.html([
+									$('<h3 class="global-module-section-heading gm-section-heading" />')
+										.html('User Color: '),
+									$('<div class="global-module-section-content gm-section-content" />')
+										.html(function(){
+											return user.create();
+										})
+								]);
+								$mod_color.html([
+									$('<h3 class="global-module-section-heading gm-section-heading" />')
+										.html('Mod Color: '),
+									$('<div class="global-module-section-content gm-section-content" />')
+										.html(function(){
+											return mod.create();
+										})
+								]);
+								$self_color.html([
+									$('<h3 class="global-module-section-heading gm-section-heading" />')
+										.html('Self-Post Color: '),
+									$('<div class="global-module-section-content gm-section-content" />')
+										.html(function(){
+											return self_post.create();
+										})
+								]);
+								return [$fonts, $bg_color, $fg_color, $user_color, $mod_color, $self_color];
+							});
+							
+							$gm_html = [$header, $content];
 							return $gm_html;
 						}, $item, 'CustomizeModule');
 					} else {
@@ -87,12 +186,13 @@
 									'top': '',
 									'height': '',
 									'overflow': ''
+								});
 							});
 						}
 					}
 				}
 			}
-		},
+		}),
 		/**
 		 * [Function] toolbar.showGlobalModule
 		 * This function creates a global module for the toolbar
@@ -513,6 +613,52 @@
 			} catch (e) {
 				throw new Error(e);
 			}
+		}
+	});
+	
+	$(document).ready(function(){
+		var $toolbar = $('<nav class="ChatToolbar chat-toolbar" id="ChatToolbar" />'),
+			$toolbar_wrapper = $('<div class="toolbar-wrapper chat-toolbar-wrapper" />'),
+			$links = [],
+			$collapse = $('<a href="#ChatToolbar" class="chat-toolbar-collapse toolbar-collapse" />');
+		$collapse.html('<i class="icon ion-chevron-' + (toolbar.collapsed ? 'up' : 'down') + '" />');
+		$collapse.on('click', function(event){
+			event.preventDefault();
+			var link = $(event.target),
+				$target = $(link.prop('hash'));
+			if (toolbar.collapsed){
+				$target.removeClass('collapsed');
+				link.find('.icon').removeClass('ion-chevron-up').addClass('ion-chevron-down');
+				toolbar.expand();
+				toolbar.collapsed = false;
+			} else {
+				$target.addClass('collapsed');
+				link.find('.icon').removeClass('ion-chevron-down').addClass('ion-chevron-up');
+				toolbar.collapse();
+				toolbar.collapsed = true;
+			}
+		});
+		
+		$links = Object.keys(toolbar.items).map(function(item){
+			var item_data = toolbar.items[item],
+				$html = $('<div class="toolbar-item" />');
+			$html.attr('id', item_data.id);
+			$html.attr('data-name', item);
+			$html.html(
+				$('<a href="#ChatToolbar" class="toolbar-link" />')
+					.html(item)
+					.on('click', function(event){
+						event.preventDefault();
+						Function.prototype.apply.call(item_data.handler, window, [event]);
+					})
+			);
+			return $html;
+		});
+		
+		$toolbar_wrapper.html($links);
+		$toolbar.html([$toolbar_wrapper, $collapse]);
+		if (!$('#ChatToolbar').exists()){
+			$('.ChatWindow').append($toolbar);
 		}
 	});
 })(this.mediaWiki, this.jQuery, this.mainRoom, this.ChatToolbar = this.ChatToolbar || {});
